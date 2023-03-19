@@ -1,6 +1,6 @@
-room_info = {
-    "id" : "8A"
-}
 class Room:
-    def __init__ (self,id):
-        self.__id = id
+    id = 0
+    def __init__ (self):
+        self._id = Room.id 
+        id += 1
+        

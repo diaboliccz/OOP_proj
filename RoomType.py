@@ -8,9 +8,10 @@ room_type_info ={
 
 
 class RoomType:
-    def __init__(self, price, sleeps, room_size, bed, room_type):
+    def __init__(self, price, sleeps, room_size, bed_type, bed, room_type):
         self.__price = price
         self.__sleeps = sleeps
         self.__room_size = room_size
+        self.__bed_type = bed_type
         self.__bed = bed
         self.__room_type = room_type
