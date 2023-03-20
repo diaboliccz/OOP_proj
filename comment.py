@@ -5,3 +5,6 @@ class Comment():
     
     def comment(self):
         pass
+    
+    def test(self):
+        pass

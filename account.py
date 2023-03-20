@@ -12,10 +12,9 @@ class User(Account):
     
     def login(self):
         if self._username == self._username and self._password == self._password:
-            return 
             return 'User login successful!'
         else:
-            return 'Login failed..'
+            return 'Login failed.'
 
 class Admin(Account):
     def __init__(self, username, password, email, phone_number, name):  
