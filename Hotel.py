@@ -3,7 +3,8 @@ hotel_info = {
     "facility": ["wifi", "parking_zone", "gym", "swimming_pool", "breakfast"],
     "address": "55/28 Thonglor Sukhmvit",
     "map": "13.740257,460.548432",
-    "policies": ["no_smoking", "no_pet", "no_noise"]
+    "property_facilities": [0,0,0,0,1,1,1,1],
+    "paymrnt_option" : [0,1,1,1,0]
 
 }
 
@@ -31,7 +32,8 @@ class Hotel:
         self.__credit_card = False
         self.__property_facilities = [self.__swimming_pool, self.__internet, self.__car_park, self.__gym, self.__non_smoking, self.__spa, self.__restaurant, self.__pet]
         self.__payment_option = [self.__free_cancel, self.__pay_at_hotel, self.__pay_later, self.__pay_now, self.__credit_card]
-        
+
+
     def __edit_property_facilities(self, bit):
         pass
     
