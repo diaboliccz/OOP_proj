@@ -28,9 +28,14 @@ hotel.add_room_type(room_type_info)
 hotel.add_room(0, 3)
 user = User(username = 'boomoioi', password = "maibok", email = "1@kmitl.ac.th", phone_number = "0626250119", full_name = "Nanthakorn Nanthawisit")
 
-# user.add_to_cart(hotel.roomtype_list[0], 12, 15)
-# user.add_to_cart(hotel.roomtype_list[0], 12, 18)
-# user.add_to_cart(hotel.roomtype_list[0], 10, 11)
-print(user.cart.total_price)
+user.add_to_cart(hotel.roomtype_list[0], 12, 15)
+user.add_to_cart(hotel.roomtype_list[0], 12, 18)
+user.add_to_cart(hotel.roomtype_list[0], 10, 11)
+
 for room in user.cart.room_list:
     print(room.full_option())
+
+print(user.cart.total_price)
+user.check_out()
+print(user.cart.room_list)
+print(user.reservations[0].room_reserved_list)
