@@ -1,6 +1,9 @@
 class Room:
-    id = 0
-    def __init__ (self):
-        self._id = Room.id 
-        id += 1
-        
+    def __init__ (self, hotel, roomtype):
+        self._id = 1
+        self._hotel = hotel
+        self._roomtype = roomtype
+
+    @property
+    def id(self):
+        return self._id
