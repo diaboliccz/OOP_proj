@@ -9,7 +9,10 @@ class Cart():
     def add(self, room):
         self.__room_list.append(room)
         self.__update()
-        print(self.__total_price)
+
+    def clear_cart(self):
+        self.__room_list = []
+        self.__update()
 
     def __update(self):
         self.__total_price = 0
