@@ -22,6 +22,12 @@ class RoomReserved(Room):
     @property
     def price(self):
         return self.__price
+    
+    @status.setter
+    def status(self, value):
+        self.__status = value
+        return self.__status
+
 
     def full_option(self):
         return [self._hotel.hotel_name, self.__check_in_date, self.__check_out_date]
