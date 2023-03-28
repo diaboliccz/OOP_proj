@@ -8,6 +8,20 @@ class Cart():
     
     def add(self, room):
         self.__room_list.append(room)
+        self.__update()
+        print(self.__total_price)
+
+    def __update(self):
+        self.__total_price = 0
+        for room in self.__room_list:
+            room_price = room.price 
+            self.__total_price += room_price
+
+        return True
+    
+    @property
+    def total_price(self):
+        return self.__total_price
 
     @property
     def room_list(self):

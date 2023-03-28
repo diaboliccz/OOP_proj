@@ -19,3 +19,7 @@ class RoomType:
     @property
     def room_list(self):
         return self.__room_list
+    
+    @property
+    def price(self):
+        return self.__price
