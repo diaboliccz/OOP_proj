@@ -7,7 +7,7 @@ class Hotel:
         self.__hotel_type = hotel_type
         self.__address = address
         self.__map = map
-        self.__total_rating = 0 
+        self.__average_rating = 0 
         self.__policies = policies
         self.__swimming_pool = False
         self.__internet = False
@@ -26,6 +26,7 @@ class Hotel:
         self.__payment_option = [self.__free_cancel, self.__pay_at_hotel, self.__pay_later, self.__pay_now, self.__credit_card]
         self.__edit_payment_option(payment_list)
         self.__edit_property_facilities(property_list)
+        self.__comments = []
 
 
     def __edit_property_facilities(self, property_list):
@@ -42,6 +43,14 @@ class Hotel:
 
     def add_room(self, index, count):
         self.__roomtype_list[index].add_room(count)
+    def add_comment(self, comment):
+        self.__comments.append(comment)
+    def update_rating(self):
+        total_rating = sum(comment.rating for comment in self.__comments)
+        if len(self.__comments) > 0:
+            self.__average_rating = total_rating / len(self.__comments)
+        else:
+            self.__average_rating = 0
 
     @property
     def hotel_name(self):
@@ -51,3 +60,9 @@ class Hotel:
     def roomtype_list(self):
         return self.__roomtype_list
 
+    @property
+    def comments(self):
+        return self.__comments
+    @property
+    def average_rating(self):
+        return self.__average_rating
