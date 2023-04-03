@@ -35,7 +35,9 @@ user.add_to_cart(hotel.roomtype_list[0], 10, 11)
 for room in user.cart.room_list:
     print(room.full_option())
 
+
 print(user.cart.total_price)
 user.check_out()
 print(user.cart.room_list)
 print(user.reservations[0].room_reserved_list)
+print(user.reservations[0].booked_list())
