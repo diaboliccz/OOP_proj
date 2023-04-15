@@ -1,7 +1,7 @@
 from Room import Room
 class RoomReserved(Room):
     def __init__(self, room, check_in_date, check_out_date , status="pending"):
-        super().__init__(room._hotel, room._roomtype, room._id)
+        super().__init__(room.hotel, room.roomtype, room.id)
         self.__check_in_date = check_in_date
         self.__check_out_date = check_out_date
         self.__status = status
@@ -27,7 +27,3 @@ class RoomReserved(Room):
     def status(self, value):
         self.__status = value
         return self.__status
-
-
-    def full_option(self):
-        return [self._hotel.hotel_name, self.__check_in_date, self.__check_out_date]

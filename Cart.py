@@ -30,3 +30,8 @@ class Cart():
     def room_list(self):
         return self.__room_list
 
+    def show_item(self):
+        res = []
+        for reserved in self.__room_list:
+            res.append([reserved.hotel.hotel_name, reserved.roomtype.roomtype_name, reserved.check_in_date, reserved.check_out_date])
+        return res

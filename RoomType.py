@@ -8,7 +8,7 @@ class RoomType:
         self.__sleeps = sleeps
         self.__room_size = room_size
         self.__bed_type = bed_type
-        self.__room_type = room_type
+        self.__roomtype_name = room_type
         self.__room_list = []
         RoomType.id += 1
 
@@ -23,3 +23,11 @@ class RoomType:
     @property
     def price(self):
         return self.__price
+    
+    @property
+    def sleeps(self):
+        return self.__sleeps
+    
+    @property
+    def roomtype_name(self):
+        return self.__roomtype_name

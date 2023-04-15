@@ -1,7 +1,6 @@
-from Cart import Cart
-from RoomReserved import RoomReserved
-from Reservation import Reservation
-reservation_list = []
+from Cart import *
+from Reservation import *
+from Agoda import agoda
 
 class Account():
     def __init__(self, username, password, email, phone_number):
@@ -21,11 +20,11 @@ class User(Account):
         room = self.__get_room(roomtype, check_in_date, check_out_date)
         if(room):
             locked_room = RoomReserved(room, check_in_date, check_out_date)
-            reservation_list.append(locked_room)
             self.cart.add(locked_room)
-            return "Success"
+            agoda.add_room(locked_room)
+            return True
         else:
-            return "Sorry room full"
+            return False
 
     def check_out(self):
         makepayment = 1
@@ -49,22 +48,9 @@ class User(Account):
       
     def __get_room(self, roomtype, check_in_date, check_out_date):
         for room in roomtype.room_list:
-            temp = []
-            for roomreserved in reservation_list:
-                if roomreserved.id == room.id and roomreserved.status != "fail":
-                    temp.append(roomreserved)
-
-            intersect = 0
-            for roomreserved in temp:
-                for date in range(roomreserved.check_in_date, roomreserved.check_out_date):
-                    if date < check_out_date and date >= check_in_date:
-                        intersect+=1
-                        break
-                    
-            if(intersect == 0):
+            if room.is_available(check_in_date, check_out_date):
                 return room
-                    
-        return None 
+        return None
 
     @property
     def cart(self):
