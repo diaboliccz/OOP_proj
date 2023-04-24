@@ -1,5 +1,6 @@
 from Cart import *
 from Reservation import *
+from HotelCatalog import *
 from Agoda import agoda
 
 class Account():
@@ -16,8 +17,13 @@ class User(Account):
         self.__reservations = []
         self.__create_cart()
     
-    def add_to_cart(self, roomtype, check_in_date, check_out_date):
-        room = self.__get_room(roomtype, check_in_date, check_out_date)
+    def add_to_cart(self, hotel_name, roomtype_name, check_in_date, check_out_date):
+        for hotel in catalog.hotel_list:
+            if(hotel.hotel_name == hotel_name):
+                for roomtype in hotel.roomtype_list:
+                    if(roomtype.roomtype_name == roomtype_name):
+                        roomtype_to_reserve = roomtype
+        room = self.__get_room(roomtype_to_reserve, check_in_date, check_out_date)
         if(room):
             locked_room = RoomReserved(room, check_in_date, check_out_date)
             self.cart.add(locked_room)

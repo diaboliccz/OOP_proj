@@ -1,4 +1,6 @@
 from Agoda import agoda
+import datetime
+from dateutil.rrule import rrule, DAILY
 
 class Room:
     id_cnt = 0
@@ -31,7 +33,7 @@ class Room:
 
         intersect = 0
         for roomreserved in temp:
-            for date in range(roomreserved.check_in_date, roomreserved.check_out_date):
+            for date in rrule(DAILY, dtstart=roomreserved.check_in_date, until=roomreserved.check_out_date):
                 if date < check_out_date and date >= check_in_date:
                     intersect+=1
                     break

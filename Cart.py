@@ -31,7 +31,10 @@ class Cart():
         return self.__room_list
 
     def show_item(self):
-        res = []
-        for reserved in self.__room_list:
-            res.append([reserved.hotel.hotel_name, reserved.roomtype.roomtype_name, reserved.check_in_date, reserved.check_out_date])
+        res = {}
+        sum = 0
+        for index, reserved in enumerate(self.__room_list):
+            sum += reserved.price
+            res.update({index: {"hotel_name":reserved.hotel.hotel_name, "roomtype":reserved.roomtype.roomtype_name, "check_in_date":reserved.check_in_date, "check_out_date":reserved.check_out_date}})
+        res.update({"summary" : sum})
         return res

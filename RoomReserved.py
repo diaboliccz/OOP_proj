@@ -5,7 +5,7 @@ class RoomReserved(Room):
         self.__check_in_date = check_in_date
         self.__check_out_date = check_out_date
         self.__status = status
-        self.__price = (check_out_date - check_in_date) * self._roomtype.price
+        self.__price = (check_out_date - check_in_date).days * self._roomtype.price
 
     @property
     def check_in_date(self):
