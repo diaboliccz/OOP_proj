@@ -84,8 +84,8 @@ search_res = catalog.search_hotel('Hot', datetime.datetime(2023, 4, 12), datetim
 print(search_res)
 res = catalog.dict_to_list(search_res)
 
-print(catalog.count_bed(res))
-print(catalog.bed_filter(res, "3.5 feet"))
+print(catalog.count_hotel_type(res))
+print(catalog.price_filter(res, 1000, 1500))
 
 #User initialize
 user = User(username = 'boomoioi', password = "maibok", email = "1@kmitl.ac.th", phone_number = "0626250119", full_name = "Nanthakorn Nanthawisit")

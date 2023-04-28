@@ -1,8 +1,52 @@
-import datetime
-from dateutil.rrule import rrule, DAILY
+# Python program showing
+# abstract base class work
 
-a = datetime.datetime(2023, 4, 17)
-b = datetime.datetime.now()
+from abc import ABC, abstractmethod
 
-for dt in rrule(DAILY, dtstart=a, until=b):
-    print(dt.strftime("%Y-%m-%d"))
+class Polygon(ABC):
+    
+	@abstractmethod
+	def noofsides(self):
+		pass
+
+	@abstractmethod
+	def test(self):
+		pass
+	
+
+class Triangle(Polygon):
+
+	# overriding abstract method
+	def noofsides(self):
+		print("I have 3 sides")
+
+class Pentagon(Polygon):
+
+	# overriding abstract method
+	def noofsides(self):
+		print("I have 5 sides")
+
+class Hexagon(Polygon):
+
+	# overriding abstract method
+	def noofsides(self):
+		print("I have 6 sides")
+
+class Quadrilateral(Polygon):
+
+	# overriding abstract method
+	def noofsides(self):
+		print("I have 4 sides")
+
+# Driver code
+R = Triangle()
+R.noofsides()
+
+K = Quadrilateral()
+K.noofsides()
+
+R = Pentagon()
+R.noofsides()
+
+K = Hexagon()
+K.noofsides()
