@@ -1,7 +1,9 @@
 from Cart import *
 from Reservation import *
 from HotelCatalog import *
+from Comment import *
 from Agoda import agoda
+
 
 class Account():
     def __init__(self, username, password, email, phone_number):
@@ -58,6 +60,10 @@ class User(Account):
                 return room
         return None
 
+    def comment_rating(self, hotel, comment, rating):
+        comment = Comment(self, comment, rating)
+        return hotel.add_comment(comment)
+        
     @property
     def cart(self):
         return self.__cart

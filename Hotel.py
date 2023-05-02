@@ -22,9 +22,21 @@ class Hotel:
         self.__pay_later = payment_list[2]
         self.__pay_now = payment_list[3]
         self.__credit_card = payment_list[4]
+        
+        self.__comment_list = []
     
+    def __update_rating(self):
+        sum = 0
+        for comment in self.__comment_list:
+            sum += comment.rating
+        sum /= len(self.__comment_list)
+        self.__total_rating = sum
 
-    
+    def add_comment(self, comment):
+        self.__comment_list.append(comment)
+        self.__update_rating()
+        return True
+
     def add_room_type(self, room_type_info):
         self.__roomtype_list.append(RoomType(self, room_type_info["price"], room_type_info["sleeps"], room_type_info["room_size"], room_type_info["bed"], room_type_info["room_type"]))
 
