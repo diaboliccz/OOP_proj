@@ -35,3 +35,11 @@ class RoomType:
     @property
     def bed_type(self):
         return self.__bed_type
+    
+    @property
+    def roomtype_info(self):
+        return {"sleeps" : self.__sleeps,
+                "bed" : self.__bed_type,
+                "price" : self.__price,
+                "room_size" : self.__room_size
+                }

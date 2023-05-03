@@ -6,8 +6,12 @@ class HotelCatalog():
         self.__hotel_list = []
 
     def __convert_date(self, date):
-        d,m,y = date.split("-")
+        y,m,d = date.split("-")
         return datetime.datetime(int(y), int(m), int(d))
+
+    # def __reverse_convert_date(self, date):
+    #     y,m,d = date.split("-")
+    #     return datetime.datetime(int(y), int(m), int(d))
 
     def dict_to_list(self, hotel_list):
         res = []
@@ -33,19 +37,18 @@ class HotelCatalog():
             res.update({hotel : roomtype_list})
         return res
 
-    def __available_hotel_getter(self, search_text, check_in_date, check_out_date, sleeps, wanted_room):
+    def __available_hotel_getter(self, search_text, check_in_date, check_out_date, sleeps):
         res = []
         for hotel in self.__hotel_list:
             if search_text.lower() in hotel.hotel_name.lower():
                 roomtype_list = []
-                for roomtype in hotel.roomtype_list:
-                    if roomtype.sleeps >= sleeps/wanted_room:
-                        count = 0
-                        for room in roomtype.room_list: 
-                            if room.is_available(check_in_date, check_out_date):
-                                count += 1
-                        if count >= wanted_room:
-                            roomtype_list.append(roomtype)
+                for roomtype in hotel.roomtype_list: 
+                    count = 0
+                    for room in roomtype.room_list: 
+                        if room.is_available(check_in_date, check_out_date):
+                            count += 1
+                    if count*roomtype.sleeps >= sleeps:
+                        roomtype_list.append(roomtype)
                 if len(roomtype_list) > 0:
                     res.append([hotel, roomtype_list])
         return res
@@ -193,11 +196,21 @@ class HotelCatalog():
         res["count_hotel_fac"] = count_hotel_fac
         return res
 
-    def search_hotel(self, search_text, check_in_date, check_out_date, sleeps, wanted_room):
+    def search_hotel(self, search_text, check_in_date, check_out_date, sleeps):
         check_in_date = self.__convert_date(check_in_date)
         check_out_date = self.__convert_date(check_out_date)
-        hotel_list = self.__available_hotel_getter(search_text, check_in_date, check_out_date, sleeps, wanted_room)
+        hotel_list = self.__available_hotel_getter(search_text, check_in_date, check_out_date, sleeps)
         return self.__add_counter(hotel_list)
+
+    def get_roomtype_info(self, hotel_name, roomtype_list):
+        res = []
+        for roomtype_name in roomtype_list:
+            for hotel in self.__hotel_list:
+                if hotel.hotel_name == hotel_name:
+                    for roomtype in hotel.roomtype_list:
+                        if roomtype.roomtype_name == roomtype_name:
+                            res.append(roomtype.roomtype_info)
+        return res
 
     @property
     def hotel_list(self):

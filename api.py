@@ -50,6 +50,14 @@ def add_to_cart(data: dict) -> dict:
         return {"status": "Success"}
     else:
         return {"status": "Fail"}
+    
+@app.get("/check_out/")
+def check_out() -> dict:
+    if user.check_out():
+        return {"status" : "Success"}
+    else:
+        return {"status" : "Fail"}
+
 
 @app.get("/view_cart/")
 def view_cart():
@@ -61,8 +69,7 @@ def search_hotel(data: dict):
     check_in_date = data["check_in_date"]
     check_out_date = data["check_out_date"]
     sleeps = data["sleeps"]
-    wanted_room = data["room"]
-    return catalog.search_hotel(search_text, check_in_date, check_out_date, sleeps, wanted_room)
+    return catalog.search_hotel(search_text, check_in_date, check_out_date, sleeps)
 
 @app.post("/price_filter/")
 def price_filter(data: dict): 
@@ -113,3 +120,10 @@ def create_comment(data: dict):
     else:
         return {"status" : False}
     
+
+@app.post("/roomtype_info/")
+def roomtype_info(data: dict) -> dict:
+    hotel_name = data["hotel_name"]
+    roomtype_list = data["roomtype_list"]
+    print(hotel_name, roomtype_list)
+    return {"result" : catalog.get_roomtype_info(hotel_name, roomtype_list)}

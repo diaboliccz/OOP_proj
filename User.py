@@ -19,12 +19,20 @@ class User(Account):
         self.__reservations = []
         self.__create_cart()
     
+    def __convert_date(self, date):
+        y,m,d = date.split("-")
+        return datetime.datetime(int(y), int(m), int(d))
+
     def add_to_cart(self, hotel_name, roomtype_name, check_in_date, check_out_date):
         for hotel in catalog.hotel_list:
             if(hotel.hotel_name == hotel_name):
                 for roomtype in hotel.roomtype_list:
                     if(roomtype.roomtype_name == roomtype_name):
                         roomtype_to_reserve = roomtype
+
+        check_in_date = self.__convert_date(check_in_date)
+        check_out_date = self.__convert_date(check_out_date)
+
         room = self.__get_room(roomtype_to_reserve, check_in_date, check_out_date)
         if(room):
             locked_room = RoomReserved(room, check_in_date, check_out_date)
@@ -44,12 +52,6 @@ class User(Account):
             return True
         else:
             return False
-
-    def login(self):
-        if self._username == self._username and self._password == self._password:
-            return 'User login successful!'
-        else:
-            return 'Login failed..'  
     
     def __create_cart(self):
         self.__cart = Cart(self)
