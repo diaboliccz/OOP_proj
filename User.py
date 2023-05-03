@@ -1,7 +1,9 @@
-from Cart import Cart
-from RoomReserved import RoomReserved
-from Reservation import Reservation
-reservation_list = []
+from Cart import *
+from Reservation import *
+from HotelCatalog import *
+from Comment import *
+from Agoda import agoda
+
 
 class Account():
     def __init__(self, username, password, email, phone_number):
@@ -17,15 +19,20 @@ class User(Account):
         self.__reservations = []
         self.__create_cart()
     
-    def add_to_cart(self, roomtype, check_in_date, check_out_date):
-        room = self.__get_room(roomtype, check_in_date, check_out_date)
+    def add_to_cart(self, hotel_name, roomtype_name, check_in_date, check_out_date):
+        for hotel in catalog.hotel_list:
+            if(hotel.hotel_name == hotel_name):
+                for roomtype in hotel.roomtype_list:
+                    if(roomtype.roomtype_name == roomtype_name):
+                        roomtype_to_reserve = roomtype
+        room = self.__get_room(roomtype_to_reserve, check_in_date, check_out_date)
         if(room):
             locked_room = RoomReserved(room, check_in_date, check_out_date)
-            reservation_list.append(locked_room)
             self.cart.add(locked_room)
-            return "Success"
+            agoda.add_room(locked_room)
+            return True
         else:
-            return "Sorry room full"
+            return False
 
     def check_out(self):
         makepayment = 1
@@ -49,23 +56,14 @@ class User(Account):
       
     def __get_room(self, roomtype, check_in_date, check_out_date):
         for room in roomtype.room_list:
-            temp = []
-            for roomreserved in reservation_list:
-                if roomreserved.id == room.id and roomreserved.status != "fail":
-                    temp.append(roomreserved)
-
-            intersect = 0
-            for roomreserved in temp:
-                for date in range(roomreserved.check_in_date, roomreserved.check_out_date):
-                    if date < check_out_date and date >= check_in_date:
-                        intersect+=1
-                        break
-                    
-            if(intersect == 0):
+            if room.is_available(check_in_date, check_out_date):
                 return room
-                    
-        return None 
+        return None
 
+    def comment_rating(self, hotel, comment, rating):
+        comment = Comment(self, comment, rating)
+        return hotel.add_comment(comment)
+        
     @property
     def cart(self):
         return self.__cart
