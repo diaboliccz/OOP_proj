@@ -1,111 +1,158 @@
 from Cart import Cart
-from RoomReserved import RoomReserved
 from Reservation import Reservation
-from Comment import Comment
-reservation_list = []
+from Comment import *
+from RoomReserved import RoomReserved
+from HotelCatalog import *
+from Agoda import Agoda
+from datetime import datetime
+from verification import *
+import bcrypt ,uuid
 
-class Account():
+
+
+class Account:
     def __init__(self, username, password, email, phone_number):
         self._username = username
-        self._password = password
+        self._password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self._email = email
         self._phone_number = phone_number
 
-
 class User(Account):
-    def __init__(self, username, password, email, phone_number, full_name):  
+    def __init__(self, username, password, email, phone_number, full_name):
         super().__init__(username, password, email, phone_number)
-        self.__full_name = full_name
-        self.__reservations = []
-        self.__create_cart()
-        self.__comments = []
-        self.__accounts = []
-    def add_to_cart(self, roomtype, check_in_date, check_out_date):
-        room = self.__get_room(roomtype, check_in_date, check_out_date)
-        if(room):
-            locked_room = RoomReserved(room, check_in_date, check_out_date)
-            reservation_list.append(locked_room)
-            self.cart.add(locked_room)
-            return "Success"
-        else:
-            return "Sorry room full"
-
-    def check_out(self):
-        makepayment = 1
-        if(makepayment == 1):
-            for room in self.cart.room_list:
-                room.status = "success"
-            self.__reservations.append(Reservation(self.cart.room_list, 1))
-            self.cart.clear_cart()
+        self._username = username  
+        self._password = self._password
+        self._email = email
+        self._phone_number = phone_number
+        self._full_name = full_name
+        self._comments = []
+        self.__comment_manager = CommentManager()
+    def set_email_verification_token(self, token):
+        self.__email_verification_token = token
+    def verify_email(self, token):
+        if token == self.__email_verification_token:
+            self.__email_verified = True
             return True
         else:
             return False
-    def create_account(self,username,password,email,phone_number,full_name):
-        new_user = User(username,password,email,phone_number,full_name)
-        for account in self.__accounts:
-            if account.__username == username and account.__password == password:
-                return "This account has already existed"
-        self.accounts.append(new_user)
-        return new_user
-    def login(self,username,password):
-        for account in self.__accounts:
-            if account._username == username and account._password == password:
-                return 'User login successful!'
-            else:
-                return 'Login failed..'  
     
-    def __create_cart(self):
-        self.__cart = Cart(self)
-      
-    def __get_room(self, roomtype, check_in_date, check_out_date):
-        for room in roomtype.room_list:
-            temp = []
-            for roomreserved in reservation_list:
-                if roomreserved.id == room.id and roomreserved.status != "fail":
-                    temp.append(roomreserved)
+    def update_password(self, old_password, new_password):
+        if bcrypt.checkpw(old_password.encode('utf-8'), self._password):
+            self._password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            return True
+        else:
+            return False
+    
+   
+    def leave_comment(self, hotel_name, room_type, comment_text, ratings):
+        comment_manager = CommentManager()
+        comment_date = datetime.now()
+        comment = Comment(self._username, hotel_name, room_type, comment_text, ratings, comment_date)
+        comment_manager.add_comment(comment)
+        return "Comment successfully added"
 
-            intersect = 0
-            for roomreserved in temp:
-                for date in range(roomreserved.check_in_date, roomreserved.check_out_date):
-                    if date < check_out_date and date >= check_in_date:
-                        intersect+=1
-                        break
-                    
-            if(intersect == 0):
-                return room
-                    
-        return None 
+
+    '''def show_comments(self):
+        for comment in self.__comment_manager.get_comments_by_user(self._username):  # Change this line
+            print(comment)
+    '''
+    
+
+
+class UserDatabase:
+    def __init__(self):
+        self.__users = []
+
+    def add_user(self, user):
+        self.__users.append(user)
+
+    def remove_user(self, username):
+        user = self.get_user(username)
+        if user is not None:
+            self.__users.remove(user)
+
+    def get_user(self, username):
+        for user in self.__users:
+            if user._username == username:
+                return user
+        return None
+
+   
+
+    def login(self, username, password):
+        user = self.get_user(username)
+        if user is not None and bcrypt.checkpw(password.encode('utf-8'), user._password):
+            return user
+        else:
+            return None
+
+    def create_account(self, user):
+        if self.get_user(user._username) is None:
+            self.add_user(user)
+            user.set_email_verification_token(str(uuid.uuid4()))
+            return True
+        else:
+            return False
+
+    def authenticate_user(self, username, password):
+        user = self.get_user(username)
+        if user and bcrypt.checkpw(password.encode('utf-8'), user._password):
+            return user
+        else:
+            return None
+
+    def authenticate_user_with_token(self, token):
+        user = self.get_user_by_token(token)
+        if user:
+            return user
+        else:
+            return None
+
+    def get_user_by_token(self, token):
+        for user in self.__users:
+            if getattr(user, '_email_verification_token', None) == token:
+                return user
+        return None
+
+    def logout_user(self, user):
+        user.set_email_verification_token(None)
 
     @property
-    def cart(self):
-        return self.__cart
+    def get_all_users(self):
+        return self.__users
     
-    @property
-    def reservations(self):
-        return self.__reservations
-    
-    @property
-    def full_name(self):
-        return self.__full_name
-
-    def leave_comment(self, hotel, comment, rating):
-        comment = Comment(self, hotel, comment, rating)
-        self.__comments.append(comment)
-        hotel.add_comment(comment)
-
 
 class Admin(Account):
-    def __init__(self, username, password, email, phone_number, name):  
+    def __init__(self, user_database, username, password, email, phone_number, name):  
         super().__init__(username, password, email, phone_number)
         self.__name = name
+        self.__user_database = user_database
+        
+
+    def add_user(self, user):
+        self.__user_database.add_user(user)
+
+    def remove_user(self, username):
+        self.__user_database.remove_user(username)
+
+    def update_user_info(self, username, updated_info):
+        user = self.__user_database.get_user(username)
+        if user is not None:
+            for key, value in updated_info.items():
+                if hasattr(user, key):
+                    setattr(user, key, value)
+                else:
+                    print(f"Warning: Invalid attribute '{key}'")
+        else:
+            print(f"User '{username}' not found")
+
     
-    def add_hotel(self, hotel):
-        pass
 
-    def remove_hotel(self, hotel_id):
-        pass
+    
+    def list_users(self):
+        return self.__user_database.get_all_users
 
-    def manage_user_account(self, user_id):
-        pass
-    def update_hotel_info(self, hotel_id, updated_info):
-        pass
+   
+    def get_user(self, username):
+        return self.__user_database.get_user(username)
+    
