@@ -1,4 +1,5 @@
 from Hotel import *
+from Comment import *
 import math
 
 class HotelCatalog():
@@ -8,10 +9,6 @@ class HotelCatalog():
     def __convert_date(self, date):
         y,m,d = date.split("-")
         return datetime.datetime(int(y), int(m), int(d))
-
-    # def __reverse_convert_date(self, date):
-    #     y,m,d = date.split("-")
-    #     return datetime.datetime(int(y), int(m), int(d))
 
     def dict_to_list(self, hotel_list):
         res = []

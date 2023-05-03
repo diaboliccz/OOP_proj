@@ -1,4 +1,23 @@
-from RoomType import *
+import datetime
+from dateutil.rrule import rrule, DAILY
+
+class Agoda:
+    def __init__(self):
+        self.__reservation_list = []
+
+    def add_room(self, room):
+        self.__reservation_list.append(room)
+
+    @property 
+    def reservation_list(self):
+        return self.__reservation_list
+    
+    def get_status(self):
+        temp = [] 
+        for room in self.__reservation_list:
+            temp.append(room.status)
+
+        return temp
 
 class Hotel:
     def __init__(self, hotel_name, hotel_type, address, map, policies, property_list, payment_list):
@@ -118,4 +137,143 @@ class Hotel:
     @property
     def credit_card(self):
         return self.__credit_card
+
+class RoomType:
+    id = 0
+    def __init__(self, hotel, price, sleeps, room_size, bed_type, room_type):
+        self.__hotel = hotel
+        self.__price = price
+        self.__sleeps = sleeps
+        self.__room_size = room_size
+        self.__bed_type = bed_type
+        self.__roomtype_name = room_type
+        self.__room_list = []
+        RoomType.id += 1
+
+    def add_room(self, count):
+        for i in range(count):
+            self.__room_list.append(Room(self.__hotel, self))
+
+    @property
+    def room_list(self):
+        return self.__room_list
     
+    @property
+    def price(self):
+        return self.__price
+    
+    @property
+    def sleeps(self):
+        return self.__sleeps
+    
+    @property
+    def roomtype_name(self):
+        return self.__roomtype_name
+    
+    @property
+    def bed_type(self):
+        return self.__bed_type
+    
+    @property
+    def roomtype_info(self):
+        return {"sleeps" : self.__sleeps,
+                "bed" : self.__bed_type,
+                "price" : self.__price,
+                "room_size" : self.__room_size
+                }
+
+class Room:
+    id_cnt = 0
+    def __init__ (self, hotel, roomtype, id=None):
+        if(id == None):
+            self._id = Room.id_cnt 
+            Room.id_cnt += 1
+        else:
+            self._id = id
+        self._hotel = hotel
+        self._roomtype = roomtype
+
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def roomtype(self):
+        return self._roomtype
+    
+    @property
+    def hotel(self):
+        return self._hotel
+    
+    def is_available(self, check_in_date, check_out_date):
+        temp = []
+        for roomreserved in agoda.reservation_list:
+            if roomreserved.id == self._id and roomreserved.status != "fail":
+                temp.append(roomreserved)
+
+        intersect = 0
+        for roomreserved in temp:
+            for date in rrule(DAILY, dtstart=roomreserved.check_in_date, until=roomreserved.check_out_date):
+                if date < check_out_date and date >= check_in_date:
+                    intersect+=1
+                    break
+                
+        if(intersect == 0):
+            return True
+        else:
+            return False
+        
+class Reservation():
+    def __init__(self, room_list, date):
+        self.__room_reserved_list = room_list
+        self.__date_pay = date
+
+    @property
+    def room_reserved_list(self):
+        return self.__room_reserved_list
+    
+    @property
+    def date_pay(self):
+        return self.__date_pay
+    
+    def booked_list(self):
+        temp = [self.__date_pay]
+        sum = 0 
+        for room in self.__room_reserved_list:
+            sum += room.price
+            temp.append([room.hotel.hotel_name, room.check_in_date, room.check_out_date])
+        temp.append(sum)
+        return temp
+    
+class RoomReserved(Room):
+    def __init__(self, room, check_in_date, check_out_date , status="pending"):
+        super().__init__(room.hotel, room.roomtype, room.id)
+        self.__check_in_date = check_in_date
+        self.__check_out_date = check_out_date
+        self.__status = status
+        self.__price = (check_out_date - check_in_date).days * self._roomtype.price
+
+    @property
+    def check_in_date(self):
+        return self.__check_in_date
+    
+    @property
+    def check_out_date(self):
+        return self.__check_out_date
+    
+    @property
+    def status(self):
+        return self.__status
+    
+    @property
+    def price(self):
+        return self.__price
+    
+    @status.setter
+    def status(self, value):
+        self.__status = value
+        return self.__status
+
+
+
+agoda = Agoda()
