@@ -67,11 +67,11 @@ class HotelCatalog():
 
     def count_payment(self, hotel_list):
         res = {"free_cancel" : 0,
-               "pay_at_hotel" : 0,
-               "pay_later" : 0,
-               "pay_now" : 0,
-               "credit_card" : 0
-               }
+                "pay_at_hotel" : 0,
+                "pay_later" : 0,
+                "pay_now" : 0,
+                "credit_card" : 0
+            }
         dict_key = list(res.keys())
         for hotel_room in hotel_list:
             hotel = hotel_room[0]
@@ -192,6 +192,21 @@ class HotelCatalog():
         res["count_rating"] = count_rating
         res["count_hotel_fac"] = count_hotel_fac
         return res
+    
+    def show_hotel_data(self, hotel_list):
+        res = {"hotel_list" : []}
+        for hotel in hotel_list:
+            res_roomtype = []
+            res_info = []
+            res["hotel_list"].append([hotel.hotel_name])
+            res_info.append({"hotel_name" : hotel.hotel_name,
+                            "hotel_rating" : hotel.total_rating,
+                            "hotel_address" : hotel.address})
+            for roomtype in hotel.roomtype_list:
+                res_roomtype.append(roomtype.roomtype_name)
+            res["hotel_list"][-1].append(res_roomtype)
+            res["hotel_list"][-1].append(res_info)
+        return res
 
     def search_hotel(self, search_text, check_in_date, check_out_date, sleeps, wanted_room):
         check_in_date = self.__convert_date(check_in_date)
@@ -201,7 +216,6 @@ class HotelCatalog():
 
     @property
     def hotel_list(self):
-        return self.__hotel_list
-    
+        return self.__hotel_list        
 
 catalog = HotelCatalog()
