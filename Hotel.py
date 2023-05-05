@@ -1,12 +1,48 @@
 import datetime
 from dateutil.rrule import rrule, DAILY
 
-class Agoda:
+class Agoda():
     def __init__(self):
         self.__reservation_list = []
 
     def add_room(self, room):
         self.__reservation_list.append(room)
+
+    def __convert_date(self, date):
+        y,m,d = date.split("-")
+        return datetime.datetime(int(y), int(m), int(d))
+    
+    def get_room(self, roomtype, check_in_date, check_out_date, wanted_room):
+        check_in_date = self.__convert_date(check_in_date)
+        check_out_date = self.__convert_date(check_out_date)
+        room_list = []
+        for room in roomtype.room_list:
+            if room.is_available(check_in_date, check_out_date):
+                room_list.append(room)
+                if(len(room_list) >= wanted_room):
+                    return room_list
+        return None
+
+    def make_locked_room(self, room_list, check_in_date, check_out_date):
+        check_in_date = self.__convert_date(check_in_date)
+        check_out_date = self.__convert_date(check_out_date)
+        locked_list = []
+        for room in room_list:
+            locked_room = RoomReserved(room, check_in_date, check_out_date)
+            locked_list.append(locked_room)
+            self.reservation_list.append(locked_room)
+        return locked_list
+
+    def check_out(self, room_list, price):
+        success_room = []
+        refund_able = True
+        for room in room_list:
+            if room.status != "fail":
+                if not room.hotel.free_cancel:
+                    refund_able = False
+                success_room.append(room)
+                room.status = "success"
+        return Reservation(success_room, price, refund_able)
 
     @property 
     def reservation_list(self):
@@ -19,7 +55,7 @@ class Agoda:
 
         return temp
 
-class Hotel:
+class Hotel():
     def __init__(self, hotel_name, hotel_type, address, map, policies, property_list, payment_list):
         self.__roomtype_list = []
         self.__hotel_name = hotel_name
@@ -61,6 +97,10 @@ class Hotel:
 
     def add_room(self, index, count):
         self.__roomtype_list[index].add_room(count)
+
+    @property
+    def comment_list(self):
+        return self.__comment_list
 
     @property
     def total_rating(self):
@@ -137,8 +177,12 @@ class Hotel:
     @property
     def credit_card(self):
         return self.__credit_card
+    
+    @property
+    def address(self):
+        return self.__address
 
-class RoomType:
+class RoomType():
     id = 0
     def __init__(self, hotel, price, sleeps, room_size, bed_type, room_type):
         self.__hotel = hotel
@@ -182,7 +226,7 @@ class RoomType:
                 "room_size" : self.__room_size
                 }
 
-class Room:
+class Room():
     id_cnt = 0
     def __init__ (self, hotel, roomtype, id=None):
         if(id == None):
@@ -224,9 +268,31 @@ class Room:
             return False
         
 class Reservation():
-    def __init__(self, room_list, date):
+    ID = 0
+    def __init__(self, room_list, price, refundable):
+        self.__id = Reservation.ID
+        Reservation.ID += 1
         self.__room_reserved_list = room_list
-        self.__date_pay = date
+        self.__price = price
+        self.__refundable = refundable
+        self.__cancel = False
+        self.__date_pay = datetime.datetime.now()
+
+    @property
+    def cancel(self):
+        return self.__cancel
+
+    @property
+    def refundable(self):
+        return self.__refundable
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def price(self):
+        return self.__price
 
     @property
     def room_reserved_list(self):
@@ -236,14 +302,23 @@ class Reservation():
     def date_pay(self):
         return self.__date_pay
     
-    def booked_list(self):
-        temp = [self.__date_pay]
-        sum = 0 
+    
+    def show_item(self):
+        res = {}
+        temp = []
+        for reserved in (self.__room_reserved_list):
+            temp.append({"hotel_name":reserved.hotel.hotel_name, "roomtype":reserved.roomtype.roomtype_name, "check_in_date":reserved.check_in_date.strftime("%y-%m-%d"), "check_out_date":reserved.check_out_date.strftime("%y-%m-%d"), "price" : reserved.price})
+        res.update({"hotel_list": temp})
+        res.update({"summary" : self.__price})
+        res.update({"refund" : self.__refundable})
+        res.update({"cancel": self.__cancel})
+        return res
+    
+    def refund(self):
+        self.__cancel = True
         for room in self.__room_reserved_list:
-            sum += room.price
-            temp.append([room.hotel.hotel_name, room.check_in_date, room.check_out_date])
-        temp.append(sum)
-        return temp
+            room.cancel()
+        return {"status" : "Success"}
     
 class RoomReserved(Room):
     def __init__(self, room, check_in_date, check_out_date , status="pending"):
@@ -251,7 +326,20 @@ class RoomReserved(Room):
         self.__check_in_date = check_in_date
         self.__check_out_date = check_out_date
         self.__status = status
+        self.__created_date = datetime.datetime.now()
         self.__price = (check_out_date - check_in_date).days * self._roomtype.price
+
+    def update(self):
+        print((datetime.datetime.now() - self.created_date).seconds)
+        if (datetime.datetime.now() - self.created_date).seconds > 10:
+            self.__status = "fail"
+
+    def cancel(self):
+        self.__status = "fail"
+
+    @property
+    def created_date(self):
+        return self.__created_date
 
     @property
     def check_in_date(self):

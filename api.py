@@ -46,21 +46,28 @@ def add_to_cart(data: dict) -> dict:
     roomtype_name = data["roomtype"]
     check_in_date = data["check_in_date"]
     check_out_date = data["check_out_date"]
-    if user.add_to_cart(hotel_name, roomtype_name, check_in_date, check_out_date):
+    wanted_room = data["wanted_room"]
+    username = data["username"]
+    user = account_list.find_user(username)
+    if user.add_to_cart(hotel_name, roomtype_name, check_in_date, check_out_date, wanted_room):
         return {"status": "Success"}
     else:
         return {"status": "Fail"}
     
-@app.get("/check_out/")
-def check_out() -> dict:
+@app.post("/check_out/")
+def check_out(data: dict) -> dict:
+    username = data["username"]
+    user = account_list.find_user(username)
     if user.check_out():
         return {"status" : "Success"}
     else:
         return {"status" : "Fail"}
 
 
-@app.get("/view_cart/")
-def view_cart():
+@app.post("/view_cart/")
+def view_cart(data: dict) -> dict:
+    username = data["username"]
+    user = account_list.find_user(username)
     return user.cart.show_item()
 
 @app.post("/search/")
@@ -69,7 +76,8 @@ def search_hotel(data: dict):
     check_in_date = data["check_in_date"]
     check_out_date = data["check_out_date"]
     sleeps = data["sleeps"]
-    return catalog.search_hotel(search_text, check_in_date, check_out_date, sleeps)
+    wanted_room = data["wanted_room"]
+    return catalog.search_hotel(search_text, check_in_date, check_out_date, sleeps, wanted_room)
 
 @app.post("/price_filter/")
 def price_filter(data: dict): 
@@ -112,10 +120,9 @@ def create_comment(data: dict):
     hotel_name = data["hotel_name"]
     comment = data["comment"]
     rating = data["rating"]
-    for hotel in catalog.hotel_list:
-        if hotel.hotel_name == hotel_name:
-            hotel_to_comment = hotel
-    if(user.comment_rating(hotel_to_comment, comment, rating)):
+    username = data["username"]
+    user = account_list.find_user(username)
+    if(user.comment_rating(hotel_name, comment, rating)):
         return {"status" : True}
     else:
         return {"status" : False}
@@ -127,3 +134,19 @@ def roomtype_info(data: dict) -> dict:
     roomtype_list = data["roomtype_list"]
     print(hotel_name, roomtype_list)
     return {"result" : catalog.get_roomtype_info(hotel_name, roomtype_list)}
+
+@app.post("/get_history_list/")
+def get_history_list(data: dict) -> dict:
+    username = data["username"]
+    user = account_list.find_user(username)
+    return user.get_history_list()
+
+@app.post("/get_history_detail/")
+def get_history_detail(data: dict) -> dict:
+    id = data["id"]
+    return account_list.get_history(id)
+
+@app.post("/refund/")
+def refund(data: dict) -> dict:
+    id = data["id"]
+    return account_list.refund(id)

@@ -6,6 +6,18 @@ class HotelCatalog():
     def __init__(self):
         self.__hotel_list = []
 
+    def get_roomtype(self, hotel_name, roomtype_name):
+        for hotel in catalog.hotel_list:
+            if(hotel.hotel_name == hotel_name):
+                for roomtype in hotel.roomtype_list:
+                    if(roomtype.roomtype_name == roomtype_name):
+                        return roomtype
+                    
+    def get_hotel(self, hotel_name):
+        for hotel in catalog.hotel_list:
+            if(hotel.hotel_name == hotel_name):
+                return hotel
+
     def __convert_date(self, date):
         y,m,d = date.split("-")
         return datetime.datetime(int(y), int(m), int(d))
@@ -34,7 +46,7 @@ class HotelCatalog():
             res.update({hotel : roomtype_list})
         return res
 
-    def __available_hotel_getter(self, search_text, check_in_date, check_out_date, sleeps):
+    def __available_hotel_getter(self, search_text, check_in_date, check_out_date, sleeps, wanted_room):
         res = []
         for hotel in self.__hotel_list:
             if search_text.lower() in hotel.hotel_name.lower():
@@ -44,7 +56,7 @@ class HotelCatalog():
                     for room in roomtype.room_list: 
                         if room.is_available(check_in_date, check_out_date):
                             count += 1
-                    if count*roomtype.sleeps >= sleeps:
+                    if count >= wanted_room and wanted_room*roomtype.sleeps >= sleeps:
                         roomtype_list.append(roomtype)
                 if len(roomtype_list) > 0:
                     res.append([hotel, roomtype_list])
@@ -179,8 +191,21 @@ class HotelCatalog():
         
         return self.__add_counter(res)
     
+    def __hotel_info(self, hotel_list):
+        res = {}
+        for hotel_roomtype in hotel_list:
+            hotel = hotel_roomtype[0]
+            roomtype_price = [x.price for x in hotel_roomtype[1]]
+            res[hotel.hotel_name] = {"rating": hotel.total_rating,
+                                     "address": hotel.address,
+                                     "lowest" : min(roomtype_price),
+                                     "highest" : max(roomtype_price)
+                                     }
+        return res
+
     def __add_counter(self, hotel_list):
         res={"hotel_list" : self.list_to_dict(hotel_list)}
+        res["hotel_info"] = self.__hotel_info(hotel_list)
         hotel_type = self.count_hotel_type(hotel_list)
         count_payment = self.count_payment(hotel_list)
         count_bed = self.count_bed(hotel_list)
@@ -191,12 +216,13 @@ class HotelCatalog():
         res["count_bed"] = count_bed
         res["count_rating"] = count_rating
         res["count_hotel_fac"] = count_hotel_fac
+        res["max_price"] = max([hotel["highest"] for hotel in res["hotel_info"].values()])
         return res
 
-    def search_hotel(self, search_text, check_in_date, check_out_date, sleeps):
+    def search_hotel(self, search_text, check_in_date, check_out_date, sleeps, wanted_room):
         check_in_date = self.__convert_date(check_in_date)
         check_out_date = self.__convert_date(check_out_date)
-        hotel_list = self.__available_hotel_getter(search_text, check_in_date, check_out_date, sleeps)
+        hotel_list = self.__available_hotel_getter(search_text, check_in_date, check_out_date, sleeps, wanted_room)
         return self.__add_counter(hotel_list)
 
     def get_roomtype_info(self, hotel_name, roomtype_list):
@@ -208,10 +234,13 @@ class HotelCatalog():
                         if roomtype.roomtype_name == roomtype_name:
                             res.append(roomtype.roomtype_info)
         return res
+    def add_comment(self, user, hotel_name, comment, rating):
+        hotel = self.get_hotel(hotel_name)
+        comment = Comment(user, comment, rating)
+        return hotel.add_comment(comment)
 
     @property
     def hotel_list(self):
         return self.__hotel_list
     
-
 catalog = HotelCatalog()
